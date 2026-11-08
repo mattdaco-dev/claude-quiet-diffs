@@ -7,11 +7,12 @@ conversation out of view. With this mod, an edit looks like this:
 
 ```
 ● Update(scripts/metrics.mjs)
-  ⎿ Added 11 lines, removed 1 line (ctrl+o)
+  ⎿  Added 11 lines, removed 1 line (ctrl+o)
 ```
 
 The file name stays in the tool header, and the counts come from the diff Claude Code already
-computed. A new file shows `Created, N lines`.
+computed. A new file shows `Created, N lines` (or `Created (empty)`), and an edit that changes
+nothing shows `No change`.
 
 The full diff is still one key away: `ctrl+o` (transcript view) shows it unchanged. These keep
 the stock rendering:
@@ -41,8 +42,16 @@ From a shell:
 claude plugin install quiet-diffs --marketplace mattdaco-dev/claude-quiet-diffs
 ```
 
-In the desktop app, where `/plugin` does not run: click + next to the prompt box, then Plugins,
-Add marketplace with `mattdaco-dev/claude-quiet-diffs`, then Add plugin.
+The mod only acts in the terminal, so installing it from the desktop app changes nothing there.
+
+## Updating
+
+```
+claude plugin marketplace update claude-quiet-diffs
+claude plugin update quiet-diffs@claude-quiet-diffs
+```
+
+Then restart the session.
 
 ## Uninstall
 
@@ -70,9 +79,15 @@ Claude Code writes the API types and a `tsconfig.json` next to the mod when it l
 local folder (`claude --plugin-dir <this folder>`). Both are git-ignored. Then:
 
 ```
-npx -p typescript tsc -p . --noEmit
+npx -y -p typescript@5 tsc -p . --noEmit
 claude plugin validate .
 ```
+
+Bump `version` in `.claude-plugin/plugin.json` for every release: `claude plugin update`
+compares versions and skips a release that kept the same one.
+
+`.claude/allow-main-commits` is a marker for the author's local git hook; it does nothing for
+users.
 
 ## License
 

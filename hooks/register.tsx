@@ -8,7 +8,6 @@ type FileResult = {
   oldString?: string
   newString?: string
   structuredPatch?: Hunk[]
-  gitDiff?: { additions?: number; deletions?: number }
   staged?: boolean
 }
 
@@ -49,13 +48,7 @@ const summary = (out: FileResult): string | null => {
   const unchanged =
     (typeof out.content === 'string' && out.originalFile === out.content) ||
     (typeof out.oldString === 'string' && out.oldString === out.newString)
-  if (unchanged) return 'No change'
-
-  const git = out.gitDiff
-  if (git && typeof git.additions === 'number' && typeof git.deletions === 'number') {
-    return counts(git.additions, git.deletions)
-  }
-  return null
+  return unchanged ? 'No change' : null
 }
 
 export const register: Register = on => {
