@@ -77,7 +77,8 @@ export const register: Register = on => {
       if (text === null) return next(e)
 
       const { Text } = $.ui.resolve(e)
-      return <Text dimColor>{text} (ctrl+o)</Text>
+      // The stock block draws its own corner and indent, so the replacement does too.
+      return <Text dimColor>{`  ⎿  ${text} (ctrl+o)`}</Text>
     },
   )
 }
