@@ -1,0 +1,7 @@
+{
+  "name": "quiet-diffs",
+  "version": "0.1.0",
+  "description": "Collapse Edit and Write diffs to one line with added and removed counts; ctrl+o still shows the full diff.",
+  "license": "MIT",
+  "repository": "https://github.com/mattdaco-dev/claude-quiet-diffs"
+}

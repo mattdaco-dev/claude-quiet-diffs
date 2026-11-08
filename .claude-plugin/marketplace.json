@@ -1,0 +1,12 @@
+{
+  "name": "claude-quiet-diffs",
+  "owner": { "name": "mattdaco-dev" },
+  "metadata": { "description": "quiet-diffs: one-line file-edit diffs for Claude Code" },
+  "plugins": [
+    {
+      "name": "quiet-diffs",
+      "source": "./",
+      "description": "Collapse Edit and Write diffs to one line with added and removed counts; ctrl+o still shows the full diff."
+    }
+  ]
+}
