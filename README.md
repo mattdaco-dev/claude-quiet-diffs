@@ -14,6 +14,15 @@ The file name stays in the tool header, and the counts come from the diff Claude
 computed. A new file shows `Created, N lines` (or `Created (empty)`), and an edit that changes
 nothing shows `No change`.
 
+Files changed by a shell command (a `sed -i`, a heredoc script) get the same treatment: the
+command output stays, and the diff Claude Code appends under it becomes one line per file:
+
+```
+● Bash(python3 - <<'EOF' ...)
+  ⎿  15:import { ... }
+  ⎿  Updated src/components/dashboard/DashboardView.tsx, added 10 lines, removed 125 lines (ctrl+o)
+```
+
 The full diff is still one key away: `ctrl+o` (transcript view) shows it unchanged. These keep
 the stock rendering:
 
@@ -24,7 +33,7 @@ the stock rendering:
 
 The mod only changes what you see. Claude still reads the full tool result, and nothing is
 patched in the Claude Code binary: it uses the public mod API (`ui.render` on `ToolResult`
-for the `Edit` and `Write` tools).
+for the `Edit`, `Write` and `Bash` tools).
 
 ## Install
 

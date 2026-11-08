@@ -11,6 +11,15 @@ type FileResult = {
   staged?: boolean
 }
 
+type BashEditFile = { filePath: string; hunks: Hunk[]; created?: true; deleted?: true }
+type BashResult = {
+  stdout?: string
+  stderr?: string
+  interrupted?: boolean
+  bashEditDiff?: { files: BashEditFile[]; moreFiles: number }
+  [key: string]: unknown
+}
+
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 const counts = (added: number, removed: number) =>
@@ -51,6 +60,23 @@ const summary = (out: FileResult): string | null => {
   return unchanged ? 'No change' : null
 }
 
+// Shows a path relative to the session directory when it lies inside it, like the stock row.
+const shortPath = (filePath: string, cwd: string) =>
+  filePath.startsWith(`${cwd}/`) ? filePath.slice(cwd.length + 1) : filePath
+
+// One summary line per file a shell command changed.
+const bashLines = (diff: NonNullable<BashResult['bashEditDiff']>, cwd: string) => {
+  const lines = diff.files.map(file => {
+    const path = shortPath(file.filePath, cwd)
+    const { added, removed } = countHunks(file.hunks)
+    if (file.deleted) return `Deleted ${path}`
+    if (file.created) return `Created ${path}, ${plural(added, 'line')}`
+    return `Updated ${path}, ${counts(added, removed).toLowerCase()}`
+  })
+  if (diff.moreFiles > 0) lines.push(`and ${plural(diff.moreFiles, 'more file')}`)
+  return lines
+}
+
 export const register: Register = on => {
   on(
     'ui.render',
@@ -72,6 +98,41 @@ export const register: Register = on => {
       const { Text } = $.ui.resolve(e)
       // The stock block draws its own corner and indent, so the replacement does too.
       return <Text dimColor>{`  ⎿  ${text} (ctrl+o)`}</Text>
+    },
+  )
+
+  on(
+    'ui.render',
+    { component: 'ToolResult', props: { tool: 'Bash' } },
+    async ($, e, next) => {
+      if (e.surface !== 'terminal') return next(e)
+
+      const out = e.props.output as BashResult | undefined
+      const diff = out?.bashEditDiff
+      if (e.props.isErrored || e.props.isExpanded || !out || !diff || !Array.isArray(diff.files)) {
+        return next(e)
+      }
+      if (diff.files.length === 0) return next(e)
+
+      const { bashEditDiff: _dropped, ...rest } = out
+      const lines = bashLines(diff, await $.session.cwd())
+      const { Box, Text } = $.ui.resolve(e)
+      const summaryRows = lines.map((line, i) => (
+        <Text key={String(i)} dimColor>{`  ⎿  ${line}${i === 0 ? ' (ctrl+o)' : ''}`}</Text>
+      ))
+
+      // A command whose only effect was the edit: the summary alone, no "(No output)" row.
+      const silent = !rest.stdout?.trim() && !rest.stderr?.trim() && !rest.interrupted
+      if (silent) return <Box flexDirection="column">{summaryRows}</Box>
+
+      // The engine still draws the command output; only the diff is left out.
+      const stock = await next({ ...e, props: { ...e.props, output: rest } })
+      return (
+        <Box flexDirection="column">
+          {stock}
+          {summaryRows}
+        </Box>
+      )
     },
   )
 }

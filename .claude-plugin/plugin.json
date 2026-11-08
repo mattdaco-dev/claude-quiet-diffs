@@ -1,7 +1,7 @@
 {
   "name": "quiet-diffs",
-  "version": "0.1.2",
-  "description": "Collapse Edit and Write diffs to one line with added and removed counts; ctrl+o still shows the full diff.",
+  "version": "0.1.3",
+  "description": "Collapse Edit, Write and shell-command diffs to one line with added and removed counts; ctrl+o still shows the full diff.",
   "author": {
     "name": "mattdaco-dev"
   },
