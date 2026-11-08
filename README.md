@@ -23,6 +23,11 @@ command output stays, and the diff Claude Code appends under it becomes one line
   ⎿  Updated src/components/dashboard/DashboardView.tsx, added 10 lines, removed 125 lines (ctrl+o)
 ```
 
+Claude Code only shows that diff when the `bashEditDiffEnabled` setting is on (off by default;
+set `"bashEditDiffEnabled": true` in `settings.json`, or `CLAUDE_CODE_BASH_EDIT_DIFF=1`) and the
+changed file is in a git repository with at least one commit, since the diff comes from git.
+Without it, the call stays folded into `Ran N shell commands` and the mod has nothing to do.
+
 The full diff is still one key away: `ctrl+o` (transcript view) shows it unchanged. These keep
 the stock rendering:
 
